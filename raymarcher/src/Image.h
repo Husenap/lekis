@@ -17,6 +17,8 @@ public:
 	const std::vector<int32_t>& Pixels() const { return mPixels; }
 	const HBITMAP& GetBitmap() const { return mBitmap; }
 
+	void UpdateBitmap();
+
 private:
 	int mWidth;
 	int mHeight;

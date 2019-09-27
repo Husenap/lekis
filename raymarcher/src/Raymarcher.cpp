@@ -62,8 +62,8 @@ void Raymarcher::RenderOnTarget(Image& framebuffer) {
 
 float Raymarcher::Map(vec3 p) {
 	float radius = 1.f;
-	float sphere = sdSphere(p - vec3{0.f, 0.f, 0.f}, radius);
-	float box    = sdBox(p - vec3{3.f, 0.f, 1.f}, {1.f, 1.f, 2.f});
+	float sphere = sdSphere(p - vec3{std::sinf(mTime), 0.f, 0.f}, radius);
+	float box    = sdBox(p - vec3{4.f, 0.f, 1.f}, {1.f, 1.f, 2.f});
 	float plane  = p.y + radius;
 
 	float d = std::fminf(sphere, plane);

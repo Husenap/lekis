@@ -15,3 +15,7 @@ Image::~Image() {
 void Image::CreateBitmap() {
 	mBitmap = ::CreateBitmap(mWidth, mHeight, 1, 32, mPixels.data());
 }
+
+void Image::UpdateBitmap() {
+	SetBitmapBits(mBitmap, sizeof(mPixels[0]) * mPixels.size(), mPixels.data());
+}
