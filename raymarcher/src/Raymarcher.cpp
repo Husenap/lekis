@@ -1,5 +1,8 @@
 #include "Raymarcher.h"
 
+#include <algorithm>
+#include <execution>
+
 #include "SDF.h"
 
 const int MAX_STEPS  = 256;
@@ -14,14 +17,15 @@ void Raymarcher::RenderOnTarget(Image& framebuffer) {
 	auto& pixels = framebuffer.Pixels();
 	int width    = framebuffer.GetWidth();
 	int height   = framebuffer.GetHeight();
-	for (int i = 0; i < pixels.size(); ++i) {
+
+	std::for_each(std::execution::par, framebuffer.Indices().begin(), framebuffer.Indices().end(), [&](int32_t i) {
 		int x = i % width;
 		int y = i / width;
 
 		vec3 color;
-		MainImage(color, {(float)x, (float)(height-y), 0.f}, {(float)width, (float)height, 0.f});
+		MainImage(color, {(float)x, (float)(height - y), 0.f}, {(float)width, (float)height, 0.f});
 		pixels[i] = ToColor(color);
-	}
+	});
 }
 
 float Raymarcher::Map(vec3 p) {

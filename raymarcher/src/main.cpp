@@ -1,14 +1,16 @@
 #include <iostream>
 
 #include <chrono>
+#include <thread>
+#include <string>
 
 #include "Image.h"
 #include "Raymarcher.h"
 #include "Window.h"
 
 int main() {
-	const int width  = 1185/4;
-	const int height = 500/4;
+	const int width  = 1185;
+	const int height = 500;
 
 	Window window(GetConsoleWindow());
 	window.SetPosAndSize(0, 0, width, height);
@@ -20,17 +22,23 @@ int main() {
 
 	auto startTime   = std::chrono::high_resolution_clock::now();
 	auto currentTime = std::chrono::high_resolution_clock::now();
-	float t          = 0.0f;
+	float t          = 0.f;
+	float dt         = 0.f;
 
 	while (!GetAsyncKeyState(VK_ESCAPE)) {
+		dt = float(std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::high_resolution_clock::now() - currentTime)).count()) / 1000.f;
 		currentTime = std::chrono::high_resolution_clock::now();
-		t = float(std::chrono::duration_cast<std::chrono::milliseconds>((currentTime - startTime)).count()) / 1000.f;
+		t += dt;
 
 		raymarcher.SetTime(t);
 		raymarcher.RenderOnTarget(framebuffer);
 		framebuffer.UpdateBitmap();
 
-		window.DrawImage(framebuffer);
+		window.SetRenderTarget(framebuffer);
+		window.RenderText(("fps: " + std::to_string(1.f / dt)).c_str(), 1, 1, 0x00ff9900);
+		window.Present();
+
+		std::this_thread::yield();
 	}
 
 	return 0;

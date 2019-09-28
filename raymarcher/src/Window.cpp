@@ -1,6 +1,6 @@
 #include "Window.h"
 
-#include <string>
+#include <cmath>
 
 Window::Window(HWND hwnd)
     : mHwnd(hwnd)
@@ -17,26 +17,48 @@ Window::~Window() {
 void Window::SetPosAndSize(int x, int y, int w, int h) {
 	SetWindowPos(mHwnd, NULL, x, y, w, h, 0);
 	UpdateWindowSize();
+	SetWindowPos(mHwnd, NULL, x, y, w + (w - mWidth), h + (h - mHeight), 0);
 }
 
-void Window::DrawImage(const Image& image) {
+void Window::RenderText(const std::string& text, int x, int y, int color) {
+	SetTextColor(mMemoryDC, color);
+	SetBkColor(mMemoryDC, TRANSPARENT);
+	RECT rect{x, y, 0, 0};
+	DrawText(mMemoryDC, text.c_str(), -1, &rect, DT_NOCLIP | DT_SINGLELINE);
+}
+
+void Window::SetRenderTarget(const Image& image) {
+	SelectObject(mMemoryDC, image.GetBitmap());
+	mTargetWidth  = image.GetWidth();
+	mTargetHeight = image.GetHeight();
+}
+
+int RoundUp(int numToRound, int multiple) {
+	if (multiple == 0) return numToRound;
+
+	int remainder = numToRound % multiple;
+	if (remainder == 0) return numToRound;
+
+	return numToRound + multiple - remainder;
+}
+
+void Window::Present() {
 	UpdateWindowSize();
 
 	float windowRatio = (float)mWidth / (float)mHeight;
-	float imageRatio  = (float)image.GetWidth() / (float)image.GetHeight();
+	float imageRatio  = (float)mTargetWidth / (float)mTargetHeight;
 
-	float width  = image.GetWidth();
-	float height = image.GetHeight();
+	float width  = mTargetWidth;
+	float height = mTargetHeight;
 
 	if (windowRatio > imageRatio) {
-		width *= (float)mHeight / (float)image.GetHeight();
+		width *= (float)mHeight / (float)mTargetHeight;
 		height = (float)mHeight;
 	} else {
-		height *= (float)mWidth / (float)image.GetWidth();
+		height *= (float)mWidth / (float)mTargetWidth;
 		width = (float)mWidth;
 	}
 
-	SelectObject(mMemoryDC, image.GetBitmap());
 	StretchBlt(mDC,
 	           (mWidth - width) * 0.5f,
 	           (mHeight - height) * 0.5f,
@@ -45,11 +67,9 @@ void Window::DrawImage(const Image& image) {
 	           mMemoryDC,
 	           0,
 	           0,
-	           image.GetWidth(),
-	           image.GetHeight(),
+	           mTargetWidth,
+	           mTargetHeight,
 	           SRCCOPY);
-
-
 }
 
 void Window::UpdateWindowSize() {

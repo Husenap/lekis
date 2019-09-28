@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+#include <string>
 
 #include "Image.h"
 
@@ -11,7 +12,9 @@ public:
 
 	void SetPosAndSize(int x, int y, int w, int h);
 
-	void DrawImage(const Image& image);
+	void RenderText(const std::string& text, int x, int y, int color);
+	void SetRenderTarget(const Image& image);
+	void Present();
 
 private:
 	void UpdateWindowSize();
@@ -21,4 +24,6 @@ private:
 	HDC mMemoryDC;
 	int mWidth;
 	int mHeight;
+	int mTargetWidth;
+	int mTargetHeight;
 };

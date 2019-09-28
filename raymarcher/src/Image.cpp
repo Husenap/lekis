@@ -1,10 +1,14 @@
 #include "Image.h"
 
+#include <numeric>
+
 Image::Image(int width, int height)
     : mWidth(width)
     , mHeight(height)
     , mBitmap(0) {
 	mPixels.resize((size_t)mWidth * mHeight, 0);
+	mIndices.resize(mPixels.size());
+	std::iota(mIndices.begin(), mIndices.end(), 0);
 }
 
 Image::~Image() {
