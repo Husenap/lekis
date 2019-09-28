@@ -1,5 +1,8 @@
 #include "Raymarcher.h"
 
+#include <algorithm>
+#include <execution>
+
 #include "SDF.h"
 
 const int MAX_STEPS  = 256;
@@ -14,50 +17,15 @@ void Raymarcher::RenderOnTarget(Image& framebuffer) {
 	auto& pixels = framebuffer.Pixels();
 	int width    = framebuffer.GetWidth();
 	int height   = framebuffer.GetHeight();
-	for (int i = 0; i < pixels.size(); ++i) {
+
+	std::for_each(std::execution::par, framebuffer.Indices().begin(), framebuffer.Indices().end(), [&](int32_t i) {
 		int x = i % width;
 		int y = i / width;
 
-		vec3 uv = {0.0f};
-		uv.x    = ((float)x / (float)width) * 2.f - 1.f;
-		uv.y    = (1.f - ((float)y / (float)height)) * 2.f - 1.f;
-		uv.x *= float(width) / float(height);
-
-		vec3 ro = vec3{0.f, 0.f, -3.f};
-		vec3 rd = Normalize(vec3{uv.x, uv.y, 0.8f});
-
-		float t = RayMarch(ro, rd);
-
-		vec3 col = vec3{0.0f, 0.0f, 0.0f};
-
-		if (t < MAX_DIST) {
-			vec3 position = ro + rd * t;
-			vec3 normal   = CalcNormal(position);
-
-			vec3 material = vec3{0.2f, 0.2f, 0.2f};
-
-			vec3 sunCol = vec3{7.f, 4.5f, 3.5f};
-			vec3 skyCol = vec3{0.533f, 0.808f, 0.9f};
-			vec3 bouCol = vec3{0.7, 0.3, 0.2f};
-
-			vec3 sunDir = vec3{0.65f, 0.35f, 0.2f};
-
-			float sunDif = Saturate(Dot(normal, sunDir));
-			float skyDif = 0.5f + 0.5f * Saturate(Dot(normal, vec3{0.f, 1.f, 0.f}));
-			float bouDif = Saturate(Dot(normal, vec3{0.f, -1.f, 0.f}));
-
-			col = vec3{0.0f, 0.0f, 0.0f};
-			col += sunDif * sunCol;
-			col += skyDif * skyCol;
-			col += bouDif * bouCol;
-
-			col *= material;
-		}
-
-		col = Pow(col, 0.4545f);
-
-		pixels[i] = ToColor(col);
-	}
+		vec3 color;
+		MainImage(color, {(float)x, (float)(height - y), 0.f}, {(float)width, (float)height, 0.f});
+		pixels[i] = ToColor(color);
+	});
 }
 
 float Raymarcher::Map(vec3 p) {
@@ -70,6 +38,15 @@ float Raymarcher::Map(vec3 p) {
 	d       = std::fminf(d, box);
 
 	return d;
+}
+
+vec3 Raymarcher::CalcNormal(vec3 p) {
+	const vec3 e = vec3{1.0, -1.0, 0.0} * 0.0002f;
+	const vec3 xyy{e.x, e.y, e.y};
+	const vec3 yyx{e.y, e.y, e.x};
+	const vec3 yxy{e.y, e.x, e.y};
+	const vec3 xxx{e.x, e.x, e.x};
+	return Normalize(xyy * Map(p + xyy) + yyx * Map(p + yyx) + yxy * Map(p + yxy) + xxx * Map(p + xxx));
 }
 
 float Raymarcher::RayMarch(vec3 ro, vec3 rd) {
@@ -93,11 +70,41 @@ float Raymarcher::RayMarch(vec3 ro, vec3 rd) {
 	return t;
 }
 
-vec3 Raymarcher::CalcNormal(vec3 p) {
-	const vec3 e = vec3{1.0, -1.0, 0.0} * 0.0002f;
-	const vec3 xyy{e.x, e.y, e.y};
-	const vec3 yyx{e.y, e.y, e.x};
-	const vec3 yxy{e.y, e.x, e.y};
-	const vec3 xxx{e.x, e.x, e.x};
-	return Normalize(xyy * Map(p + xyy) + yyx * Map(p + yyx) + yxy * Map(p + yxy) + xxx * Map(p + xxx));
+void Raymarcher::MainImage(vec3& fragColor, const vec3& fragCoord, const vec3& resolution) {
+	vec3 uv = (fragCoord * 2.f - resolution) / resolution.y;
+
+	vec3 ro = vec3{0.f, 0.f, -3.f};
+	vec3 rd = Normalize(vec3{uv.x, uv.y, 0.8f});
+
+	float t = RayMarch(ro, rd);
+
+	vec3 col = vec3{0.0f, 0.0f, 0.0f};
+
+	if (t < MAX_DIST) {
+		vec3 position = ro + rd * t;
+		vec3 normal   = CalcNormal(position);
+
+		vec3 material = vec3{0.2f, 0.2f, 0.2f};
+
+		vec3 sunCol = vec3{7.f, 4.5f, 3.5f};
+		vec3 skyCol = vec3{0.533f, 0.808f, 0.9f};
+		vec3 bouCol = vec3{0.7, 0.3, 0.2f};
+
+		vec3 sunDir = vec3{0.65f, 0.35f, 0.2f};
+
+		float sunDif = Saturate(Dot(normal, sunDir));
+		float skyDif = 0.5f + 0.5f * Saturate(Dot(normal, vec3{0.f, 1.f, 0.f}));
+		float bouDif = Saturate(Dot(normal, vec3{0.f, -1.f, 0.f}));
+
+		col = vec3{0.0f, 0.0f, 0.0f};
+		col += sunDif * sunCol;
+		col += skyDif * skyCol;
+		col += bouDif * bouCol;
+
+		col *= material;
+	}
+
+	col = Pow(col, 0.4545f);
+
+	fragColor = col;
 }

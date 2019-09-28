@@ -15,6 +15,7 @@ public:
 
 	std::vector<int32_t>& Pixels() { return mPixels; }
 	const std::vector<int32_t>& Pixels() const { return mPixels; }
+	const std::vector<int32_t>& Indices() const { return mIndices; }
 	const HBITMAP& GetBitmap() const { return mBitmap; }
 
 	void UpdateBitmap();
@@ -23,5 +24,6 @@ private:
 	int mWidth;
 	int mHeight;
 	std::vector<int32_t> mPixels;
+	std::vector<int32_t> mIndices;
 	HBITMAP mBitmap;
 };
