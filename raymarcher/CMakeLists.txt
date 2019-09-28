@@ -2,6 +2,8 @@ set(target_name "raymarcher")
 
 set(src_files
     "src/SDF.h"
+    "src/FPSCounter.cpp"
+    "src/FPSCounter.h"
     "src/Raymarcher.cpp"
     "src/Raymarcher.h"
     "src/Image.cpp"
