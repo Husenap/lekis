@@ -11,15 +11,14 @@ public:
 
 	void SetPosAndSize(int x, int y, int w, int h);
 
-	void DrawImage(const Image& image, int x, int y, int scale);
+	void DrawImage(const Image& image);
 
 private:
+	void UpdateWindowSize();
+
 	HWND mHwnd;
 	HDC mDC;
 	HDC mMemoryDC;
-	RECT mRect;
-
-	void UpdatePos();
-	LONG Width() const { return mRect.right - mRect.left; }
-	LONG Height() const { return mRect.bottom - mRect.top; }
+	int mWidth;
+	int mHeight;
 };
