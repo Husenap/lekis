@@ -17,7 +17,7 @@ int main() {
 	FPSCounter fpsCounter(100);
 
 	Window window(GetConsoleWindow());
-	window.SetPosAndSize(0, 0, width, height);
+	window.SetPosAndSize(100, 100, width, height);
 
 	Image framebuffer(width, height);
 
