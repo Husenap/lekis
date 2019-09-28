@@ -18,6 +18,7 @@ void Window::SetPosAndSize(int x, int y, int w, int h) {
 	SetWindowPos(mHwnd, NULL, x, y, w, h, 0);
 	UpdateWindowSize();
 	SetWindowPos(mHwnd, NULL, x, y, w + (w - mWidth), h + (h - mHeight), 0);
+	UpdateWindowSize();
 }
 
 void Window::RenderText(const std::string& text, int x, int y, int color) {
@@ -31,15 +32,6 @@ void Window::SetRenderTarget(const Image& image) {
 	SelectObject(mMemoryDC, image.GetBitmap());
 	mTargetWidth  = image.GetWidth();
 	mTargetHeight = image.GetHeight();
-}
-
-int RoundUp(int numToRound, int multiple) {
-	if (multiple == 0) return numToRound;
-
-	int remainder = numToRound % multiple;
-	if (remainder == 0) return numToRound;
-
-	return numToRound + multiple - remainder;
 }
 
 void Window::Present() {
