@@ -7,14 +7,13 @@
 #include "Window.h"
 
 int main() {
-	const int width  = 1185;
-	const int height = 500;
-	const int scale  = 4;
+	const int width  = 1185/4;
+	const int height = 500/4;
 
 	Window window(GetConsoleWindow());
 	window.SetPosAndSize(0, 0, width, height);
 
-	Image framebuffer(width/scale, height/scale);
+	Image framebuffer(width, height);
 
 	Raymarcher raymarcher;
 	framebuffer.CreateBitmap();
@@ -31,7 +30,7 @@ int main() {
 		raymarcher.RenderOnTarget(framebuffer);
 		framebuffer.UpdateBitmap();
 
-		window.DrawImage(framebuffer, 0, 0, scale);
+		window.DrawImage(framebuffer);
 	}
 
 	return 0;

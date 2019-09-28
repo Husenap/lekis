@@ -4,7 +4,8 @@ Window::Window(HWND hwnd)
     : mHwnd(hwnd)
     , mDC(GetDC(hwnd))
     , mMemoryDC(CreateCompatibleDC(mDC))
-    , mRect({NULL}) {}
+    , mWidth(0)
+    , mHeight(0) {}
 
 Window::~Window() {
 	DeleteDC(mMemoryDC);
@@ -13,16 +14,32 @@ Window::~Window() {
 
 void Window::SetPosAndSize(int x, int y, int w, int h) {
 	SetWindowPos(mHwnd, NULL, x, y, w, h, 0);
+	UpdateWindowSize();
 }
 
-void Window::DrawImage(const Image& image, int x, int y, int scale) {
+void Window::DrawImage(const Image& image) {
+	UpdateWindowSize();
+
+	float windowRatio = (float)mWidth / (float)mHeight;
+	float imageRatio  = (float)image.GetWidth() / (float)image.GetHeight();
+
+	float width  = image.GetWidth();
+	float height = image.GetHeight();
+
+	if (windowRatio > imageRatio) {
+		width *= (float)mHeight / (float)image.GetHeight();
+		height = (float)mHeight;
+	} else {
+		height *= (float)mWidth / (float)image.GetWidth();
+		width = (float)mWidth;
+	}
+
 	SelectObject(mMemoryDC, image.GetBitmap());
-	UpdatePos();
 	StretchBlt(mDC,
-	           .5f * Width() - .5f * image.GetWidth() * scale,
-	           .5f * Height() - .5f * image.GetHeight() * scale,
-	           image.GetWidth() * scale,
-	           image.GetHeight() * scale,
+	           (mWidth - width) * 0.5f,
+	           (mHeight - height) * 0.5f,
+	           width,
+	           height,
 	           mMemoryDC,
 	           0,
 	           0,
@@ -31,6 +48,9 @@ void Window::DrawImage(const Image& image, int x, int y, int scale) {
 	           SRCCOPY);
 }
 
-void Window::UpdatePos() {
-	GetWindowRect(mHwnd, &mRect);
+void Window::UpdateWindowSize() {
+	RECT rect;
+	GetClientRect(mHwnd, &rect);
+	mWidth  = rect.right - rect.left;
+	mHeight = rect.bottom - rect.top;
 }
