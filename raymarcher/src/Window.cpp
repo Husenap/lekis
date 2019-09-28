@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include <string>
+
 Window::Window(HWND hwnd)
     : mHwnd(hwnd)
     , mDC(GetDC(hwnd))
@@ -29,6 +31,8 @@ void Window::DrawImage(const Image& image, int x, int y, int scale) {
 	           image.GetWidth(),
 	           image.GetHeight(),
 	           SRCCOPY);
+
+
 }
 
 void Window::UpdatePos() {
