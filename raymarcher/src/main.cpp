@@ -26,7 +26,7 @@ int main() {
 	float dt         = 0.f;
 
 	while (!GetAsyncKeyState(VK_ESCAPE)) {
-		dt = float(std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::high_resolution_clock::now() - currentTime)).count()) / 1000.f;
+		dt = float(std::chrono::duration_cast<std::chrono::nanoseconds>((std::chrono::high_resolution_clock::now() - currentTime)).count()) / 1000000000.f;
 		currentTime = std::chrono::high_resolution_clock::now();
 		t += dt;
 
