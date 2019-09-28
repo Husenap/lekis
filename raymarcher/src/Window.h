@@ -11,7 +11,7 @@ public:
 
 	void SetPosAndSize(int x, int y, int w, int h);
 
-	void DrawImage(const Image& image, int x, int y);
+	void DrawImage(const Image& image, int x, int y, int scale);
 
 private:
 	HWND mHwnd;

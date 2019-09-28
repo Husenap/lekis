@@ -14,7 +14,17 @@ void Window::SetPosAndSize(int x, int y, int w, int h) {
 	SetWindowPos(mHwnd, NULL, x, y, w, h, 0);
 }
 
-void Window::DrawImage(const Image& image, int x, int y) {
+void Window::DrawImage(const Image& image, int x, int y, int scale) {
 	SelectObject(mMemoryDC, image.GetBitmap());
-	BitBlt(mDC, x, y, image.GetWidth(), image.GetHeight(), mMemoryDC, 0, 0, SRCCOPY);
+	StretchBlt(mDC,
+	           0,
+	           0,
+	           image.GetWidth() * scale,
+	           image.GetHeight() * scale,
+	           mMemoryDC,
+	           0,
+	           0,
+	           image.GetWidth(),
+	           image.GetHeight(),
+	           SRCCOPY);
 }
