@@ -7,13 +7,14 @@
 #include "Window.h"
 
 int main() {
-	const int width  = 1185;
-	const int height = 500;
+	const int width  = 1185/2;
+	const int height = 500/2;
+	const int scale  = 8;
 
 	Window window(GetConsoleWindow());
 	window.SetPosAndSize(0, 0, width + 50, height + 50);
 
-	Image framebuffer(width/4, height/4);
+	Image framebuffer(width/scale, height/scale);
 
 	Raymarcher raymarcher;
 	framebuffer.CreateBitmap();
@@ -22,7 +23,7 @@ int main() {
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float t          = 0.0f;
 
-	while (GetKeyState(VK_ESCAPE) != 0) {
+	while (!GetAsyncKeyState(VK_ESCAPE)) {
 		currentTime = std::chrono::high_resolution_clock::now();
 		t = float(std::chrono::duration_cast<std::chrono::milliseconds>((currentTime - startTime)).count()) / 1000.f;
 
@@ -30,7 +31,7 @@ int main() {
 		raymarcher.RenderOnTarget(framebuffer);
 		framebuffer.UpdateBitmap();
 
-		window.DrawImage(framebuffer, 0, 0, 4);
+		window.DrawImage(framebuffer, 0, 0, scale);
 	}
 
 	return 0;
