@@ -7,12 +7,12 @@
 #include "Window.h"
 
 int main() {
-	const int width  = 1185/2;
-	const int height = 500/2;
-	const int scale  = 8;
+	const int width  = 1185;
+	const int height = 500;
+	const int scale  = 4;
 
 	Window window(GetConsoleWindow());
-	window.SetPosAndSize(0, 0, width + 50, height + 50);
+	window.SetPosAndSize(0, 0, width, height);
 
 	Image framebuffer(width/scale, height/scale);
 

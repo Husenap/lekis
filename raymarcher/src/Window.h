@@ -17,4 +17,9 @@ private:
 	HWND mHwnd;
 	HDC mDC;
 	HDC mMemoryDC;
+	RECT mRect;
+
+	void UpdatePos();
+	LONG Width() const { return mRect.right - mRect.left; }
+	LONG Height() const { return mRect.bottom - mRect.top; }
 };

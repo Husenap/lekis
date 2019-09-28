@@ -3,7 +3,8 @@
 Window::Window(HWND hwnd)
     : mHwnd(hwnd)
     , mDC(GetDC(hwnd))
-    , mMemoryDC(CreateCompatibleDC(mDC)) {}
+    , mMemoryDC(CreateCompatibleDC(mDC))
+    , mRect({NULL}) {}
 
 Window::~Window() {
 	DeleteDC(mMemoryDC);
@@ -16,9 +17,10 @@ void Window::SetPosAndSize(int x, int y, int w, int h) {
 
 void Window::DrawImage(const Image& image, int x, int y, int scale) {
 	SelectObject(mMemoryDC, image.GetBitmap());
+	UpdatePos();
 	StretchBlt(mDC,
-	           0,
-	           0,
+	           .5f * Width() - .5f * image.GetWidth() * scale,
+	           .5f * Height() - .5f * image.GetHeight() * scale,
 	           image.GetWidth() * scale,
 	           image.GetHeight() * scale,
 	           mMemoryDC,
@@ -27,4 +29,8 @@ void Window::DrawImage(const Image& image, int x, int y, int scale) {
 	           image.GetWidth(),
 	           image.GetHeight(),
 	           SRCCOPY);
+}
+
+void Window::UpdatePos() {
+	GetWindowRect(mHwnd, &mRect);
 }

@@ -4,8 +4,7 @@ Image::Image(int width, int height)
     : mWidth(width)
     , mHeight(height)
     , mBitmap(0) {
-	mPixels.resize((size_t)mWidth * mHeight);
-	std::fill(mPixels.begin(), mPixels.end(), 0);
+	mPixels.resize((size_t)mWidth * mHeight, 0);
 }
 
 Image::~Image() {
