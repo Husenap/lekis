@@ -3,6 +3,8 @@
 #include <windows.h>
 #include <vector>
 
+namespace lks {
+
 class Image {
 public:
 	Image(int width, int height);
@@ -27,3 +29,5 @@ private:
 	std::vector<int32_t> mIndices;
 	HBITMAP mBitmap;
 };
+
+}  // namespace lks

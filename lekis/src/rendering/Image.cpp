@@ -2,6 +2,8 @@
 
 #include <numeric>
 
+namespace lks {
+
 Image::Image(int width, int height)
     : mWidth(width)
     , mHeight(height)
@@ -22,3 +24,5 @@ void Image::CreateBitmap() {
 void Image::UpdateBitmap() {
 	SetBitmapBits(mBitmap, sizeof(mPixels[0]) * mPixels.size(), mPixels.data());
 }
+
+}  // namespace lks

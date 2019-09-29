@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+namespace lks {
+
 Window::Window(HWND hwnd)
     : mHwnd(hwnd)
     , mDC(GetDC(hwnd))
@@ -21,11 +23,16 @@ void Window::SetPosAndSize(int x, int y, int w, int h) {
 	UpdateWindowSize();
 }
 
+void Window::SetFont(int font) {
+	HFONT hfont = (HFONT)GetStockObject(font);
+	SelectObject(mMemoryDC, hfont);
+}
+
 void Window::RenderText(const std::string& text, int x, int y, int color) {
 	SetTextColor(mMemoryDC, color);
 	SetBkColor(mMemoryDC, TRANSPARENT);
 	RECT rect{x, y, 0, 0};
-	DrawText(mMemoryDC, text.c_str(), -1, &rect, DT_NOCLIP | DT_SINGLELINE);
+	DrawText(mMemoryDC, text.c_str(), -1, &rect, DT_NOCLIP);
 }
 
 void Window::SetRenderTarget(const Image& image) {
@@ -70,3 +77,5 @@ void Window::UpdateWindowSize() {
 	mWidth  = rect.right - rect.left;
 	mHeight = rect.bottom - rect.top;
 }
+
+}  // namespace lks

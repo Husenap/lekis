@@ -5,6 +5,8 @@
 
 #include "Image.h"
 
+namespace lks {
+
 class Window {
 public:
 	Window(HWND hwnd);
@@ -12,6 +14,7 @@ public:
 
 	void SetPosAndSize(int x, int y, int w, int h);
 
+	void SetFont(int font);
 	void RenderText(const std::string& text, int x, int y, int color);
 	void SetRenderTarget(const Image& image);
 	void Present();
@@ -27,3 +30,5 @@ private:
 	int mTargetWidth;
 	int mTargetHeight;
 };
+
+}  // namespace lks

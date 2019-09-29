@@ -5,21 +5,21 @@
 #include <thread>
 #include <vector>
 
-#include "FPSCounter.h"
-#include "Image.h"
+#include "util/FPSCounter.h"
+#include "rendering/Image.h"
+#include "rendering/Window.h"
 #include "Raymarcher.h"
-#include "Window.h"
 
 int main() {
-	const int width  = 1185;
-	const int height = 500;
+	const int width  = 1185 / 4;
+	const int height = 500 / 4;
 
-	FPSCounter fpsCounter(100);
+	lks::FPSCounter fpsCounter(100);
 
-	Window window(GetConsoleWindow());
+	lks::Window window(GetConsoleWindow());
 	window.SetPosAndSize(100, 100, width, height);
 
-	Image framebuffer(width, height);
+	lks::Image framebuffer(width, height);
 
 	Raymarcher raymarcher;
 	framebuffer.CreateBitmap();

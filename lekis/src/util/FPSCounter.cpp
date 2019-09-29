@@ -2,6 +2,8 @@
 
 #include <numeric>
 
+namespace lks {
+
 FPSCounter::FPSCounter(int stackSize)
     : mMaxSize(stackSize)
     , mCurrentIndex(0) {}
@@ -22,3 +24,5 @@ void FPSCounter::PushTime(float time) {
 float FPSCounter::GetFPS() {
 	return std::accumulate(mStack.begin(), mStack.end(), 0.f) / (float)(mStack.size());
 }
+
+}  // namespace lks

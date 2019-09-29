@@ -2,6 +2,8 @@
 
 #include <vector>
 
+namespace lks {
+
 class FPSCounter {
 public:
 	FPSCounter(int stackSize);
@@ -14,3 +16,5 @@ private:
 	int mCurrentIndex;
 	std::vector<float> mStack;
 };
+
+}  // namespace lks
