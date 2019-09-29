@@ -38,7 +38,10 @@ void RenderGame(lks::Image& framebuffer) {
 	int width    = framebuffer.GetWidth();
 	int height   = framebuffer.GetHeight();
 
-	for (int x = 0; x < width; ++x) {
+	std::for_each(std::execution::par, framebuffer.Indices().begin(), framebuffer.Indices().end(), [&](int32_t i) {
+		int x = i % width;
+		int y = i / width;
+
 		float rayAngle = (player.lookAngle - 0.5f * player.fov) + (x / float(width)) * player.fov;
 		float rayLen   = 0.0f;
 
@@ -63,23 +66,21 @@ void RenderGame(lks::Image& framebuffer) {
 			}
 		}
 
-		int ceiling = (0.5f * height) - (height / (float)rayLen);
+		int ceiling = (0.5f * height) - (height / rayLen);
 		int floor   = height - ceiling;
 
-		lks::vec3 color;
+		float c;
 
-		for (int y = 0; y < height; ++y) {
-			if (y < ceiling) {
-				color = lks::vec3{0.0f, 0.0f, 0.0f};
-			} else if (y > ceiling && y <= floor) {
-				color = lks::vec3{1.0f, 1.0f, 1.0f} * (1.0f - rayLen / maxDepth);
-			} else {
-				color = lks::vec3{0.1f, 0.1f, 0.1f};
-			}
-
-			pixels[y * width + x] = ToColor(color);
+		if (y < ceiling) {
+			c = 0.0f;
+		} else if (y > ceiling && y <= floor) {
+			c = 1.0f * (1.0f - rayLen / maxDepth);
+		} else {
+			c = 0.3f;
 		}
-	}
+
+		pixels[y * width + x] = ToColor(lks::vec3{1.0f, 1.0f, 0.0f} * c);
+	});
 }
 
 int main() {
@@ -124,6 +125,8 @@ int main() {
 		window.RenderText(map.ToString(player), 1, 50, 0x0096c5f9);
 
 		window.Present();
+
+		std::this_thread::yield();
 	}
 
 	return 0;
