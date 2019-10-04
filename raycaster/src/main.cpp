@@ -10,10 +10,9 @@
 #include "rendering/Image.h"
 #include "rendering/Window.h"
 #include "util/FPSCounter.h"
-#include "Bitmap.h"
 
 const float maxDepth       = 16.0f;
-const float sampleInterval = 0.0125f;
+const float sampleInterval = 0.1f;
 
 Map map;
 Player player;
@@ -64,31 +63,28 @@ void RenderGame(lks::Image& framebuffer) {
 			}
 		}
 
+		int ceiling = (0.5f * height) - (height / (float)rayLen);
+		int floor   = height - ceiling;
+
+		lks::vec3 color;
+
 		for (int y = 0; y < height; ++y) {
-			int ceiling = (0.5f * height) - (height / rayLen);
-			int floor   = height - ceiling;
-
-			float c;
-
 			if (y < ceiling) {
-				c = 0.0f;
+				color = lks::vec3{0.0f, 0.0f, 0.0f};
 			} else if (y > ceiling && y <= floor) {
-				c = 1.0f * (1.0f - rayLen / maxDepth);
+				color = lks::vec3{1.0f, 1.0f, 1.0f} * (1.0f - rayLen / maxDepth);
 			} else {
-				c = 0.3f;
+				color = lks::vec3{0.1f, 0.1f, 0.1f};
 			}
 
-			pixels[y * width + x] = ToColor(lks::vec3{1.0f, 1.0f, 0.0f} * c);
+			pixels[y * width + x] = ToColor(color);
 		}
 	}
 }
 
 int main() {
-
-	const int width  = 2048;
-	const int height = 512;
-
-	Bitmap bitmap("assets/mina.bmp");
+	const int width  = 800;
+	const int height = 600;
 
 	lks::FPSCounter fpsCounter(100);
 
@@ -98,7 +94,6 @@ int main() {
 
 	lks::Image framebuffer(width, height);
 
-	//framebuffer.Pixels() = bitmap.GetPixels();
 	framebuffer.CreateBitmap();
 
 	auto startTime   = std::chrono::high_resolution_clock::now();
@@ -129,8 +124,6 @@ int main() {
 		window.RenderText(map.ToString(player), 1, 50, 0x0096c5f9);
 
 		window.Present();
-
-		std::this_thread::yield();
 	}
 
 	return 0;
