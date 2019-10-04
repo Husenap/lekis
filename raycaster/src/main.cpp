@@ -88,8 +88,6 @@ int main() {
 	const int width  = 2048;
 	const int height = 512;
 
-	Bitmap bitmap("assets/mina.bmp");
-
 	lks::FPSCounter fpsCounter(100);
 
 	lks::Window window(GetConsoleWindow());
@@ -98,7 +96,6 @@ int main() {
 
 	lks::Image framebuffer(width, height);
 
-	//framebuffer.Pixels() = bitmap.GetPixels();
 	framebuffer.CreateBitmap();
 
 	auto startTime   = std::chrono::high_resolution_clock::now();
