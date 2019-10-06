@@ -7,10 +7,7 @@
 
 class Raycaster {
 public:
-	Raycaster(lks::Image& framebuffer)
-	    : mFramebuffer(framebuffer)
-	    , mPlayer{2.f, 13.f}
-	    , mMaxDepth(mMap.GetHeight()) {}
+	Raycaster(lks::Image& framebuffer);
 
 	void RenderScene(float t);
 	bool IsWall(const lks::vec2& pos) const;
@@ -24,7 +21,7 @@ private:
 	Player mPlayer;
 	Map mMap;
 
-	const float sampleInterval = 0.0125f;
-	const float mMaxDepth;
-	const int gridSize = 64;
+	const float mWallHeight = 1.5f;
+	float mDistToProjectionPlane;
+	float mHalfScreen;
 };

@@ -1,11 +1,18 @@
 #include <cassert>
+#include <execution>
 #include <iostream>
 #include <string>
-#include <execution>
 
 #include "Raycaster.h"
 #include "math/Vec2.h"
 #include "math/Vec3.h"
+
+Raycaster::Raycaster(lks::Image& framebuffer)
+    : mFramebuffer(framebuffer)
+    , mPlayer{2.f, 13.f} {
+	mDistToProjectionPlane = (0.5f * mFramebuffer.GetWidth()) / tanf(0.5f * mPlayer.fov);
+	mHalfScreen            = 0.5f * mFramebuffer.GetHeight();
+}
 
 void Raycaster::RenderScene(float t) {
 	auto& pixels = mFramebuffer.Pixels();
@@ -38,7 +45,7 @@ void Raycaster::RenderScene(float t) {
 			} else {
 				horIntersection.y = float(mapY + 1);
 			}
-			
+
 			horIntersection.x = mPlayer.pos.x + (mPlayer.pos.y - horIntersection.y) / std::tanf(rayAngle);
 
 			horHit = IsWall(lks::vec2{horIntersection.x, horIntersection.y - (rayFacingUp ? 1.f : 0.f)});
@@ -53,7 +60,6 @@ void Raycaster::RenderScene(float t) {
 					step.y = 1.f;
 					step.x = -1.f / tanf(rayAngle);
 				}
-				
 
 				while (!horHit && horIntersection.x <= mMap.GetHeight() - 1.f && horIntersection.x >= 0.f) {
 					horIntersection += step;
@@ -102,7 +108,7 @@ void Raycaster::RenderScene(float t) {
 		float horizontalDistance = Length(mPlayer.pos - horIntersection);
 		dist                     = std::min(verticalDistance, horizontalDistance);
 
-		dist *= std::cosf(rayAngle - mPlayer.lookAngle) * 0.75f + 0.25f;
+		dist *= std::cosf(rayAngle - mPlayer.lookAngle) * 0.75f + 0.25f;  // fisheye correction
 
 		if (verticalDistance < horizontalDistance) {
 			fragCoord.x = std::fmodf(vertIntersection.y, 1.0f);
@@ -116,15 +122,17 @@ void Raycaster::RenderScene(float t) {
 			}
 		}
 
-		for (int y = 0; y < height; ++y) {
-			int ceiling = (0.5f * height) - 0.5*(height / dist);
-			int floor   = height - ceiling;
+		float projectedHeight = (mWallHeight / dist) * mDistToProjectionPlane;
 
+		for (int y = 0; y < height; ++y) {
 			lks::vec3 c{0.0f, 0.0f, 0.0f};
 
-			if (y < ceiling) {
+			float ceiling = mHalfScreen - 0.5f * projectedHeight;
+			float floor   = mHalfScreen + 0.5f * projectedHeight;
+
+			if (y < ceiling) {  // ceiling
 				c += 0.1f;
-			} else if (y < floor) {
+			} else if (y < mHalfScreen + 0.5f * projectedHeight) {  // wall
 				fragCoord.y = ((float)y - (float)ceiling) / ((float)floor - (float)ceiling);
 
 				lks::vec2 uv = fragCoord;
@@ -132,7 +140,7 @@ void Raycaster::RenderScene(float t) {
 				uv = uv * 2.f - 1.f;
 				uv -= lks::vec2{std::cosf(t), std::sinf(t)} * 0.5f;
 				c += lks::Smoothstep(0.049f, 0.05f, std::fabsf(Length(uv) - 0.4f));
-			} else {
+			} else {  // floor
 				c += 0.3f;
 			}
 
@@ -151,59 +159,6 @@ bool Raycaster::IsWall(const lks::vec2& pos) const {
 	}
 
 	return mMap[mapY * mMap.GetWidth() + mapX] == '#';
-}
-
-void Raycaster::RenderSceneOld() {
-	auto& pixels = mFramebuffer.Pixels();
-	int width    = mFramebuffer.GetWidth();
-	int height   = mFramebuffer.GetHeight();
-
-	for (int x = 0; x < width; ++x) {
-		float rayAngle = (mPlayer.lookAngle + 0.5f * mPlayer.fov) - (x / float(width)) * mPlayer.fov;
-		float rayLen   = 0.0f;
-
-		lks::vec2 rayDir = lks::vec2::FromAngle(rayAngle);
-
-		bool hitWall = false;
-		while (!hitWall && rayLen < mMaxDepth) {
-			rayLen += sampleInterval;
-
-			lks::vec2 samplePos = mPlayer.pos + rayDir * rayLen;
-
-			int sampleX = (int)samplePos.x;
-			int sampleY = (int)samplePos.y;
-
-			if (sampleX < 0 || sampleX >= mMap.GetWidth() || sampleY < 0 || sampleY >= mMap.GetHeight()) {
-				hitWall = true;
-				rayLen  = mMaxDepth;
-			} else {
-				if (mMap[sampleY * mMap.GetWidth() + sampleX] == '#') {
-					hitWall = true;
-				}
-			}
-		}
-
-		rayLen *= std::cosf(rayAngle - mPlayer.lookAngle);
-
-		for (int y = 0; y < height; ++y) {
-			int ceiling = (0.5f * height) - (height / rayLen);
-			int floor   = height - ceiling;
-
-			float c;
-
-			if (y < ceiling) {
-				c = 0.0f;
-			} else if (y > ceiling && y <= floor) {
-				c = 1.0f * (1.0f - rayLen / mMaxDepth);
-			} else {
-				c = 0.3f;
-			}
-
-			pixels[y * width + x] = ToColor(lks::vec3{1.0f, 1.0f, 1.0f} * c);
-		}
-	}
-
-	mFramebuffer.UpdateBitmap();
 }
 
 void Raycaster::UpdateScene(float dt) {
