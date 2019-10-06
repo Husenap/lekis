@@ -33,14 +33,14 @@ void Raycaster::RenderScene() {
 			// find horizontal intersection
 
 			if (rayFacingUp) {
-				horIntersection.y = float(mapY - 1);
+				horIntersection.y = float(mapY);
 			} else {
 				horIntersection.y = float(mapY + 1);
 			}
 			
 			horIntersection.x = mPlayer.pos.x + (mPlayer.pos.y - horIntersection.y) / std::tanf(rayAngle);
 
-			horHit = IsWall(horIntersection);
+			horHit = IsWall(lks::vec2{horIntersection.x, horIntersection.y - (rayFacingUp ? 1.f : 0.f)});
 
 			if (!horHit) {
 				lks::vec2 step;
@@ -56,7 +56,7 @@ void Raycaster::RenderScene() {
 
 				while (!horHit && horIntersection.x <= mMap.GetHeight() - 1.f && horIntersection.x >= 0.f) {
 					horIntersection += step;
-					horHit = IsWall(horIntersection);
+					horHit = IsWall(lks::vec2{horIntersection.x, horIntersection.y - (rayFacingUp ? 1.f : 0.f)});
 				}
 			}
 		}
@@ -68,12 +68,12 @@ void Raycaster::RenderScene() {
 			if (rayFacingRight) {
 				vertIntersection.x = float(mapX + 1);
 			} else {
-				vertIntersection.x = float(mapX - 1);
+				vertIntersection.x = float(mapX);
 			}
 
 			vertIntersection.y = mPlayer.pos.y + (mPlayer.pos.x - vertIntersection.x) * std::tanf(rayAngle);
 
-			vertHit = IsWall(vertIntersection);
+			vertHit = IsWall(lks::vec2{vertIntersection.x - (rayFacingRight ? 0.f : 1.f), vertIntersection.y});
 
 			if (!vertHit) {
 				lks::vec2 step;
@@ -88,7 +88,7 @@ void Raycaster::RenderScene() {
 
 				while (!vertHit && vertIntersection.y <= mMap.GetWidth() - 1.f && vertIntersection.y >= 0.f) {
 					vertIntersection += step;
-					vertHit = IsWall(vertIntersection);
+					vertHit = IsWall(lks::vec2{vertIntersection.x - (rayFacingRight ? 0.f : 1.f), vertIntersection.y});
 				}
 			}
 		}
