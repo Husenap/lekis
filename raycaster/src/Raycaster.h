@@ -12,7 +12,7 @@ public:
 	    , mPlayer{2.f, 13.f}
 	    , mMaxDepth(mMap.GetHeight()) {}
 
-	void RenderScene();
+	void RenderScene(float t);
 	bool IsWall(const lks::vec2& pos) const;
 	void RenderSceneOld();
 	void UpdateScene(float dt);

@@ -18,11 +18,8 @@ void RenderGame(lks::Image& framebuffer) {
 }
 
 int main() {
-
-	//const int width  = 80;
-	//const int height = 60;
-	const int width  = 1920;
-	const int height = 1080;
+	const int width  = 800;
+	const int height = 600;
 
 	lks::FPSCounter fpsCounter(100);
 
@@ -53,7 +50,7 @@ int main() {
 		fpsCounter.PushTime(dt);
 
 		raycaster.UpdateScene(dt);
-		raycaster.RenderScene();
+		raycaster.RenderScene(t);
 
 		window.SetRenderTarget(framebuffer);
 

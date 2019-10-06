@@ -19,7 +19,12 @@ public:
 	static vec2 FromAngle(const float a);
 };
 
-
+static vec2 operator+(const vec2& a, const float& b) {
+	return vec2{a.x + b, a.y + b};
+}
+static vec2 operator-(const vec2& a, const float& b) {
+	return vec2{a.x - b, a.y - b};
+}
 static vec2 operator+(const vec2& a, const vec2& b) {
 	return vec2{a.x + b.x, a.y + b.y};
 }

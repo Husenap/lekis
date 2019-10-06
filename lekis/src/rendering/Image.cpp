@@ -10,7 +10,11 @@ Image::Image(int width, int height)
     , mBitmap(0) {
 	mPixels.resize((size_t)mWidth * mHeight, 0);
 	mIndices.resize(mPixels.size());
+	mIndicesX.resize(mWidth);
+	mIndicesY.resize(mHeight);
 	std::iota(mIndices.begin(), mIndices.end(), 0);
+	std::iota(mIndicesX.begin(), mIndicesX.end(), 0);
+	std::iota(mIndicesY.begin(), mIndicesY.end(), 0);
 }
 
 Image::~Image() {

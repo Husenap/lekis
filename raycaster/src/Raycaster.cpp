@@ -1,12 +1,13 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <execution>
 
 #include "Raycaster.h"
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 
-void Raycaster::RenderScene() {
+void Raycaster::RenderScene(float t) {
 	auto& pixels = mFramebuffer.Pixels();
 	int width    = mFramebuffer.GetWidth();
 	int height   = mFramebuffer.GetHeight();
@@ -14,7 +15,7 @@ void Raycaster::RenderScene() {
 	int mapX = int(mPlayer.pos.x);
 	int mapY = int(mPlayer.pos.y);
 
-	for (int x = 0; x < width; ++x) {
+	std::for_each(std::execution::par, mFramebuffer.IndicesX().begin(), mFramebuffer.IndicesX().end(), [&](int x) {
 		float rayAngle = (mPlayer.lookAngle + 0.5f * mPlayer.fov) - (x / float(width)) * mPlayer.fov;
 
 		if (rayAngle < 0) {
@@ -94,36 +95,50 @@ void Raycaster::RenderScene() {
 		}
 
 		// calculate closest distance
+		lks::vec2 fragCoord{0.f, 0.f};
 		float dist = 0.f;
 
-		if (horHit && vertHit) {
-			dist = std::min(Length(mPlayer.pos - horIntersection), Length(mPlayer.pos - vertIntersection));
-		} else if (horHit) {
-			dist = Length(mPlayer.pos - horIntersection);
-		} else if (vertHit) {
-			dist = Length(mPlayer.pos - vertIntersection);
-		}
+		float verticalDistance   = Length(mPlayer.pos - vertIntersection);
+		float horizontalDistance = Length(mPlayer.pos - horIntersection);
+		dist                     = std::min(verticalDistance, horizontalDistance);
 
-		//std::cout << x << " - d: " << dist << ", a: " << rayAngle << std::endl;
+		dist *= std::cosf(rayAngle - mPlayer.lookAngle) * 0.75f + 0.25f;
+
+		if (verticalDistance < horizontalDistance) {
+			fragCoord.x = std::fmodf(vertIntersection.y, 1.0f);
+			if (!rayFacingRight) {
+				fragCoord.x = 1.f - fragCoord.x;
+			}
+		} else {
+			fragCoord.x = std::fmodf(horIntersection.x, 1.0f);
+			if (!rayFacingUp) {
+				fragCoord.x = 1.f - fragCoord.x;
+			}
+		}
 
 		for (int y = 0; y < height; ++y) {
-			int ceiling = (0.5f * height) - (height / dist);
+			int ceiling = (0.5f * height) - 0.5*(height / dist);
 			int floor   = height - ceiling;
 
-			float c;
+			lks::vec3 c{0.0f, 0.0f, 0.0f};
 
 			if (y < ceiling) {
-				c = 0.0f;
-			} else if (y > ceiling && y <= floor) {
-				c = 1.0f * (1.0f - dist / mMap.GetHeight());
+				c += 0.1f;
+			} else if (y < floor) {
+				fragCoord.y = ((float)y - (float)ceiling) / ((float)floor - (float)ceiling);
+
+				lks::vec2 uv = fragCoord;
+
+				uv = uv * 2.f - 1.f;
+				uv -= lks::vec2{std::cosf(t), std::sinf(t)} * 0.5f;
+				c += lks::Smoothstep(0.049f, 0.05f, std::fabsf(Length(uv) - 0.4f));
 			} else {
-				c = 0.3f;
+				c += 0.3f;
 			}
 
-			pixels[y * width + x] = ToColor(lks::vec3{1.0f, 1.0f, 1.0f} * c);
+			pixels[y * width + x] = ToColor(c);
 		}
-	}
-	//system("pause");
+	});
 	mFramebuffer.UpdateBitmap();
 }
 

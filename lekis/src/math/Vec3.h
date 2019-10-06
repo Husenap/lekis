@@ -16,6 +16,8 @@ public:
 		};
 	};
 
+	vec3& operator+=(const float& v);
+	vec3& operator-=(const float& v);
 	vec3& operator+=(const vec3& v);
 	vec3& operator-=(const vec3& v);
 	vec3& operator*=(const vec3& v);
@@ -26,6 +28,12 @@ public:
 	static vec3 FromAngle(const float a, const float b = 0.0f);
 };
 
+static vec3 operator+(const vec3& a, const float& b) {
+	return vec3{a.x + b, a.y + b, a.z + b};
+}
+static vec3 operator-(const vec3& a, const float& b) {
+	return vec3{a.x - b, a.y - b, a.z - b};
+}
 static vec3 operator+(const vec3& a, const vec3& b) {
 	return vec3{a.x + b.x, a.y + b.y, a.z + b.z};
 }
