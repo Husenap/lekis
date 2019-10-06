@@ -123,12 +123,11 @@ void Raycaster::RenderScene(float t) {
 		}
 
 		float projectedHeight = (mWallHeight / dist) * mDistToProjectionPlane;
+		float ceiling = mHalfScreen - 0.5f * projectedHeight;
+		float floor   = mHalfScreen + 0.5f * projectedHeight;
 
 		for (int y = 0; y < height; ++y) {
 			lks::vec3 c{0.0f, 0.0f, 0.0f};
-
-			float ceiling = mHalfScreen - 0.5f * projectedHeight;
-			float floor   = mHalfScreen + 0.5f * projectedHeight;
 
 			if (y < ceiling) {  // ceiling
 				c += 0.1f;
