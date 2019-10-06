@@ -11,6 +11,8 @@ set(math_files
     "src/math/MathUtils.h"
     "src/math/Vec3.cpp"
     "src/math/Vec3.h"
+    "src/math/Vec2.cpp"
+    "src/math/Vec2.h"
     "src/math/SDF.h")
 
 set(util_files

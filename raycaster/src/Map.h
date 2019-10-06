@@ -11,7 +11,7 @@ public:
 
 	char operator[](int i) const { return mMap[i]; }
 
-	std::string ToString(Player& player) const;
+	std::string ToString(const Player& player) const;
 
 private:
 	int mWidth;

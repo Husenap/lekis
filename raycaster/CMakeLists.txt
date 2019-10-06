@@ -6,7 +6,9 @@ set(src_files
     "src/main.cpp"
     "src/Player.h"
     "src/Bitmap.cpp"
-    "src/Bitmap.h")
+    "src/Bitmap.h"
+    "src/raycaster.cpp"
+    "src/raycaster.h")
 
 add_executable(${target_name} ${src_files})
 
