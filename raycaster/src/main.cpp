@@ -13,10 +13,6 @@
 #include "Bitmap.h"
 #include "Raycaster.h"
 
-
-void RenderGame(lks::Image& framebuffer) {
-}
-
 int main() {
 	const int width  = 800;
 	const int height = 600;
