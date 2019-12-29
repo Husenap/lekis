@@ -106,21 +106,22 @@ void Raycaster::RenderScene(float t) {
 
 		float verticalDistance   = Length(mPlayer.pos - vertIntersection);
 		float horizontalDistance = Length(mPlayer.pos - horIntersection);
-		dist                     = std::min(verticalDistance, horizontalDistance);
-
-		dist *= std::cosf(rayAngle - mPlayer.lookAngle) * 0.75f + 0.25f;  // fisheye correction
 
 		if (verticalDistance < horizontalDistance) {
+			dist = verticalDistance;
 			fragCoord.x = std::fmodf(vertIntersection.y, 1.0f);
 			if (!rayFacingRight) {
 				fragCoord.x = 1.f - fragCoord.x;
 			}
 		} else {
+			dist = horizontalDistance;
 			fragCoord.x = std::fmodf(horIntersection.x, 1.0f);
 			if (!rayFacingUp) {
 				fragCoord.x = 1.f - fragCoord.x;
 			}
 		}
+
+		dist *= std::cosf(rayAngle - mPlayer.lookAngle) * 0.75f + 0.25f;  // fisheye correction
 
 		float projectedHeight = (mWallHeight / dist) * mDistToProjectionPlane;
 		float ceiling = mHalfScreen - 0.5f * projectedHeight;
@@ -139,6 +140,7 @@ void Raycaster::RenderScene(float t) {
 				uv = uv * 2.f - 1.f;
 				uv -= lks::vec2{std::cosf(t), std::sinf(t)} * 0.5f;
 				c += lks::Smoothstep(0.049f, 0.05f, std::fabsf(Length(uv) - 0.4f));
+				c *= (1.f - (dist / mMap.GetWidth()));
 			} else {  // floor
 				c += 0.3f;
 			}
